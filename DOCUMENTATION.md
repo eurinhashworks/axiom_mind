@@ -14,23 +14,30 @@ Frontend:
 - TypeScript 5.8.2  
 - Vite 6.2.0
 - Tailwind CSS 3.4.17
+- React Router 7.9.6
 
-IA & Services:
+Backend & Services:
+- Firebase Authentication (Google OAuth 2.0)
+- Firestore Database (NoSQL)
 - Google Generative AI (Gemini 2.0 Flash)
 
 Visualisation:
 - D3.js 7.9.0
 
 Persistance:
-- LocalStorage (browser)
+- Firestore (cloud, principal)
+- LocalStorage (browser, fallback & migration)
+
+Monitoring:
+- Vercel Speed Insights 1.2.0
 ```
 
 ### Principes de Design
 
 1. **Conversational AI** : L'IA comprend le contexte plutôt que de suivre un script rigide
 2. **Progressive Disclosure** : L'interface révèle les informations au fur et à mesure
-3. **Zero Configuration** : Fonctionne immédiatement sans setup complexe
-4. **Offline-First** : Données sauvegardées localement en priorité
+3. **Cloud-First avec Fallback** : Données cloud sécurisées, LocalStorage en backup
+4. **Authentication-Required** : Espace personnel par utilisateur via Google OAuth
 
 ---
 
@@ -45,27 +52,42 @@ axiom_mind/
 │   │   ├── EvaluationView.tsx   # Évaluation de l'idée
 │   │   ├── ActionPlanView.tsx   # Plan d'action MVP
 │   │   ├── GalaxyView.tsx       # Visualisation D3.js
+│   │   ├── LoginView.tsx        # 🆕 Page de login Google OAuth
+│   │   ├── UserMenu.tsx         # 🆕 Menu utilisateur + profil
+│   │   ├── ProtectedRoute.tsx   # 🆕 Sécurisation des routes
 │   │   └── icons.tsx            # Composants SVG
 │   │
+│   ├── contexts/            # 🆕 React Contexts
+│   │   └── AuthContext.tsx      # Gestion état d'authentification global
+│   │
 │   ├── services/            # Services externes
-│   │   └── geminiService.ts     # API Google Gemini
+│   │   ├── geminiService.ts     # API Google Gemini
+│   │   └── firebaseService.ts   # 🆕 Firebase Auth + Firestore
 │   │
 │   ├── hooks/               # React hooks personnalisés
-│   │   └── useLocalStorage.ts   # Persistance auto
+│   │   ├── useLocalStorage.ts   # Persistance LocalStorage (legacy)
+│   │   └── useFirestoreSync.ts  # 🆕 Synchronisation Firestore
 │   │
 │   ├── utils/               # Utilitaires
 │   │   └── exportUtils.ts       # Export Markdown
 │   │
 │   ├── types.ts             # Types TypeScript
 │   ├── App.tsx              # Composant racine
-│   ├── index.tsx            # Point d'entrée
+│   ├── index.tsx            # 🆕 Point d'entrée avec routing
 │   └── index.css            # Styles globaux
+│
+├── .agent/workflows/        # 🆕 Workflows d'implémentation
+│   └── implement-google-auth.md  # Guide auth Google
 │
 ├── index.html               # Template HTML
 ├── vite.config.ts          # Configuration Vite
 ├── tailwind.config.js      # Configuration Tailwind
 ├── tsconfig.json           # Configuration TypeScript
-└── package.json            # Dépendances
+├── package.json            # Dépendances
+├── .env.example            # 🆕 Template variables d'env
+├── FIREBASE_SETUP.md       # 🆕 Guide setup Firebase
+├── TESTING_GUIDE.md        # 🆕 Guide de test
+└── DEMARRAGE_RAPIDE.md     # 🆕 Guide de démarrage
 ```
 
 ---
@@ -76,7 +98,12 @@ axiom_mind/
 
 ```
 ┌─────────────┐
-│  CAPTURE    │ → Utilisateur crée une note
+│    LOGIN    │ → 🆕 Utilisateur s'authentifie avec Google
+└──────┬──────┘
+       │
+       ▼
+┌─────────────┐
+│  CAPTURE    │ → Utilisateur crée une note (sync Firestore auto)
 └──────┬──────┘
        │
        ▼
@@ -102,18 +129,72 @@ axiom_mind/
 
 ### 2. State Management
 
+#### **Authentification (Context Global)**
+
+```typescript
+// AuthContext.tsx
+const AuthProvider = ({ children }) => {
+  const [currentUser, setCurrentUser] = useState<User | null>(null)
+  const [loading, setLoading] = useState(true)
+  
+  useEffect(() => {
+    // Firebase onAuthStateChanged
+    return onAuthChange((user) => {
+      setCurrentUser(user)
+      setLoading(false)
+    })
+  }, [])
+  
+  return <AuthContext.Provider value={{ currentUser, loading, login, logout }}>
+}
+```
+
+#### **State Application (App.tsx)**
+
 ```typescript
 // App.tsx - Source de vérité
 const [currentStage, setCurrentStage] = useState<Stage>(Stage.CAPTURE)
-const [notes, setNotes] = useLocalStorage<BrainDumpNote[]>('axiom_notes', [])
+
+// 🆕 Firestore sync au lieu de LocalStorage
+const [notes, setNotes] = useFirestoreSync<BrainDumpNote[]>('notes', [])
+const [completedIdeas, setCompletedIdeas] = useFirestoreSync<IdeaNode[]>('ideas', [])
+
 const [activeIdea, setActiveIdea] = useState<IdeaNode | null>(null)
 const [actionPlan, setActionPlan] = useState<UserStory[]>([])
-const [completedIdeas, setCompletedIdeas] = useLocalStorage<IdeaNode[]>('axiom_completed_ideas', [])
 ```
 
 **Flux unidirectionnel :**
 ```
-User Action → Component → App.tsx → State Update → Re-render
+User Action → Component → App.tsx → State Update → Firestore Sync → Re-render
+                                        ↓
+                                  (debounce 500ms)
+```
+
+### 3. Routing et Protection
+
+```typescript
+// index.tsx
+<BrowserRouter>
+  <AuthProvider>
+    <Routes>
+      <Route path="/login" element={<LoginView />} />
+      <Route path="/*" element={
+        <ProtectedRoute>
+          <App />  {/* Toutes les vues métier */}
+        </ProtectedRoute>
+      } />
+    </Routes>
+  </AuthProvider>
+</BrowserRouter>
+```
+
+**Flow d'authentification :**
+```
+1. User accède à l'app
+2. ProtectedRoute vérifie currentUser
+3. Si non connecté → redirect /login
+4. Si connecté → render App
+5. Logout → redirect /login automatique
 ```
 
 ---
@@ -312,123 +393,20 @@ Output: "Super idée ! Quelle est la principale difficulté
 
 ---
 
-## 💾 Persistance
+## 💾 Persistance & Synchronisation
 
-### useLocalStorage Hook
+### 1. useFirestoreSync Hook (Nouveau Standard)
 
-**Auto-save pattern :**
+Remplace `useLocalStorage` pour les données principales.
 
-```typescript
-const [data, setData] = useLocalStorage<T>('key', initialValue)
-
-// 1. Chargement initial depuis localStorage
-// 2. À chaque setData() → sauvegarde auto dans localStorage
-// 3. Pas besoin de .save() manuel
-```
-
-**Clés utilisées :**
-- `axiom_notes` → BrainDumpNote[]
-- `axiom_completed_ideas` → IdeaNode[]
-
-**Fonctions utilitaires :**
-```typescript
-clearAllData()           // Reset complet
-exportAllData()          // Backup JSON
-importData(file: File)   // Restore depuis backup
-```
-
----
-
-## 🎨 Styling System
-
-### Design Tokens (Tailwind)
-
-```javascript
-// tailwind.config.js
-colors: {
-  'axiom-dark': '#0A0A0F',        // Background principal
-  'axiom-medium': '#1A1A24',      // Cards
-  'axiom-light': '#252533',       // Hover states
-  'axiom-accent': '#6366F1',      // CTA principal (Indigo)
-  'axiom-accent-hover': '#818CF8',
-  'axiom-success': '#10B981',     // Success states
-  'axiom-warning': '#F59E0B',     // Warning states
-}
-```
-
-### Classes Utilitaires
-
-```css
-/* index.css */
-
-.glass {
-  /* Glassmorphism léger */
-  @apply bg-white/5 backdrop-blur-md border border-white/10;
-}
-
-.card {
-  /* Card standard */
-  @apply bg-axiom-medium/50 backdrop-blur-sm rounded-xl 
-         shadow-lg border border-axiom-border/30;
-}
-
-.card-hover {
-  /* Card interactive */
-  @apply card hover:shadow-glow hover:border-axiom-accent/50 
-         transition-all duration-300;
-}
-```
-
-### Animations
-
-```javascript
-// Définies dans tailwind.config.js
-animation: {
-  fadeIn: 'fadeIn 0.6s ease-out forwards',
-  popIn: 'popIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) forwards',
-  slideIn: 'slideIn 0.5s ease-out forwards',
-}
-```
-
----
-
-## 🔧 Configuration
-
-### Variables d'Environnement
-
-Créer `.env` à la racine :
-
-```bash
-# Clé API Gemini (OBLIGATOIRE)
-VITE_GEMINI_API_KEY=votre_clé_ici
-```
-
-**Obtenir une clé :**
-1. https://ai.google.dev/
-2. "Get API Key"
-3. Copier dans `.env`
-
-### Vite Config
+**Features :**
+- **Cloud Sync** : Sauvegarde automatique dans Firestore `users/{uid}/data/{collection}`
+- **Debounce** : Écritures groupées toutes les 500ms pour économiser les quotas
+- **Migration Auto** : Au premier login, importe les données du LocalStorage vers Firestore
+- **Offline Fallback** : Lit le LocalStorage si le réseau échoue (lecture seule)
 
 ```typescript
-// vite.config.ts
-export default defineConfig({
-  server: {
-    port: 3000,
-    host: '0.0.0.0',  // Accessible sur réseau local
-  },
-  resolve: {
-    alias: {
-      '@': path.resolve(__dirname, './src'),  // Import alias
-    }
-  }
-})
-```
-
----
-
-## 🚀 Développement
-
+const [data, setData] = useFirestoreSync<T>('collection_name', initialValue)
 ### Scripts Disponibles
 
 ```bash

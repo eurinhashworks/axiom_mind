@@ -6,6 +6,7 @@ import App from './App';
 import { LoginView } from './components/LoginView';
 import { ProtectedRoute } from './components/ProtectedRoute';
 import { AuthProvider } from './contexts/AuthContext';
+import { SpeedInsights } from "@vercel/speed-insights/react"
 import './index.css';
 
 const rootElement = document.getElementById('root');
@@ -25,6 +26,7 @@ root.render(
             element={
               <ProtectedRoute>
                 <App />
+                <SpeedInsights />
               </ProtectedRoute>
             }
           />

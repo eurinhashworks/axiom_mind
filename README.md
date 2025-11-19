@@ -1,26 +1,38 @@
 # AXIOM - The Lightning Architect's Interface
 
-Application de gestion d'idées avec visualisation en galaxie interactive.
+Application de gestion d'idées avec **authentification Google** et synchronisation cloud via Firebase.
 
-## 🚀 Lancement Local
+## 🚀 Démarrage Rapide
 
-**Prérequis:** Node.js 18+ et pnpm
+**⚡ Nouveau :** Authentification Google implémentée ! Chaque utilisateur a son espace personnel.
 
-### Installation
+### Installation Complète
 
 ```bash
-# 1. Installer les dépendances
+# 1. Cloner le projet
+git clone https://github.com/eurinhashworks/axiom_mind.git
+cd axiom_mind
+
+# 2. Installer les dépendances
 pnpm install
 
-# 2. Configurer la clé API Gemini
-# Créez un fichier .env à la racine et ajoutez:
-# VITE_GEMINI_API_KEY=votre_clé_api_ici
+# 3. Configurer les variables d'environnement
+cp .env.example .env.local
 
-# 3. Lancer le serveur de développement
+# 4. Éditer .env.local avec vos clés:
+# - VITE_GEMINI_API_KEY (Google AI Studio)
+# - VITE_FIREBASE_* (Firebase Console)
+
+# 5. Lancer le serveur de développement
 pnpm dev
 ```
 
-L'application sera accessible sur `http://localhost:3000`
+**📖 Guides détaillés :**
+- **Configuration Firebase :** Voir `FIREBASE_SETUP.md` (8 étapes simples)
+- **Premier démarrage :** Voir `DEMARRAGE_RAPIDE.md`
+- **Tests :** Voir `TESTING_GUIDE.md`
+
+L'application sera accessible sur `http://localhost:3001/`
 
 ## 🏗️ Build de Production
 
@@ -31,19 +43,36 @@ pnpm preview
 
 ## 🌟 Fonctionnalités
 
-- **Capture** : Dumper vos idées rapidement
-- **Triage** : Structurer et clarifier vos concepts
-- **Évaluation** : Analyser l'urgence, l'échelle et le potentiel
-- **Plan d'Action** : Générer automatiquement des user stories via Gemini AI
-- **Galaxie** : Visualiser toutes vos idées dans une galaxie interactive D3.js
+### ✅ Disponibles
+- 🔐 **Authentification Google OAuth** - Espace personnel sécurisé
+- ☁️ **Synchronisation Cloud** - Firestore automatique
+- 🎤 **Capture Vocale** - Web Speech API
+- 💬 **Triage IA Intelligent** - Dialogue conversationnel avec Gemini
+- 📊 **Évaluation 3D** - Urgence, Échelle, Passion
+- 🗺️ **Plan d'Action MVP** - User stories générées par IA
+- 🌌 **Galaxie Interactive** - Visualisation D3.js
+- 💾 **Persistance** - LocalStorage + Firestore backup
+- 📤 **Export Markdown** - Téléchargement et copie
+
+### 🚧 En Développement (voir ROADMAP.md)
+- 🔍 Recherche globale dans les notes
+- 🏷️ Système de tags et catégories
+- 🌓 Mode sombre/clair
+- ⌨️ Raccourcis clavier
 
 ## 🛠️ Stack Technique
 
+### Frontend
 - **React 19** avec TypeScript
-- **Vite 6** pour le build
-- **Tailwind CSS 3** pour le styling
-- **D3.js** pour la visualisation
-- **Google Gemini AI** pour la génération de plans
+- **Vite 6** pour le build ultra-rapide
+- **React Router 7** pour le routing
+- **Tailwind CSS 3** pour le styling moderne
+- **D3.js 7** pour la visualisation
+
+### Backend & Services
+- **Firebase Authentication** - Google OAuth 2.0
+- **Firestore Database** - Base de données NoSQL
+- **Google Gemini AI** - IA conversationnelle et génération
 
 ## 📁 Structure du Projet
 
