@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
 import { useAuth } from '../contexts/AuthContext';
+import { useNavigate } from 'react-router-dom';
 
 export const LoginView: React.FC = () => {
     const { login } = useAuth();
+    const navigate = useNavigate();
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
 
@@ -11,6 +13,10 @@ export const LoginView: React.FC = () => {
         setError(null);
         try {
             await login();
+            // Indiquer que la redirection est en cours
+            setError('Connexion réussie ! Redirection en cours...');
+            // Redirection vers la page d'accueil après une authentification réussie
+            navigate('/');
         } catch (err: any) {
             setError(err.message || 'Erreur de connexion');
         } finally {
@@ -45,7 +51,10 @@ export const LoginView: React.FC = () => {
                     className="w-full bg-white hover:bg-gray-50 text-gray-800 font-semibold py-4 px-6 rounded-xl shadow-lg transition-all duration-200 hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-3"
                 >
                     {isLoading ? (
-                        <div className="w-5 h-5 border-2 border-gray-300 border-t-gray-800 rounded-full animate-spin" />
+                        <>
+                            <div className="w-5 h-5 border-2 border-gray-300 border-t-gray-800 rounded-full animate-spin" />
+                            <span>Connexion en cours...</span>
+                        </>
                     ) : (
                         <>
                             <svg className="w-5 h-5" viewBox="0 0 24 24">
