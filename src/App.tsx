@@ -7,14 +7,14 @@ import { EvaluationView } from './components/EvaluationView';
 import { ActionPlanView } from './components/ActionPlanView';
 import { GalaxyView } from './components/GalaxyView';
 import { generateActionPlan } from './services/geminiService';
-import { useLocalStorage } from './hooks/useLocalStorage';
+import { useFirestoreSync } from './hooks/useFirestoreSync';
 
 const App: React.FC = () => {
   const [currentStage, setCurrentStage] = useState<Stage>(Stage.CAPTURE);
-  const [notes, setNotes] = useLocalStorage<BrainDumpNote[]>('axiom_notes', []);
+  const [notes, setNotes] = useFirestoreSync<BrainDumpNote[]>('notes', []);
   const [activeIdea, setActiveIdea] = useState<IdeaNode | null>(null);
   const [actionPlan, setActionPlan] = useState<UserStory[]>([]);
-  const [completedIdeas, setCompletedIdeas] = useLocalStorage<IdeaNode[]>('axiom_completed_ideas', []);
+  const [completedIdeas, setCompletedIdeas] = useFirestoreSync<IdeaNode[]>('ideas', []);
 
   const addNote = useCallback((content: string) => {
     const now = new Date().toISOString();

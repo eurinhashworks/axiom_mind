@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { BrainDumpNote } from '../types';
 import { MicIcon, SendIcon } from './icons';
+import { UserMenu } from './UserMenu';
 
 interface CaptureViewProps {
   notes: BrainDumpNote[];
@@ -24,8 +25,8 @@ const NoteBubble: React.FC<{ note: BrainDumpNote; onClick: () => void; }> = ({ n
       <p className="text-axiom-text-primary leading-relaxed">{note.content}</p>
       <div className="flex items-center justify-between mt-3">
         <div className={`text-xs font-medium px-3 py-1 rounded-full ${isTisse
-            ? 'bg-axiom-success/20 text-axiom-success'
-            : 'bg-axiom-warning/20 text-axiom-warning'
+          ? 'bg-axiom-success/20 text-axiom-success'
+          : 'bg-axiom-warning/20 text-axiom-warning'
           }`}>
           {note.status}
         </div>
@@ -105,11 +106,16 @@ export const CaptureView: React.FC<CaptureViewProps> = ({ notes, addNote, startT
 
   return (
     <div className="flex flex-col h-full">
-      <header className="p-6 text-center glass-strong backdrop-blur-xl border-b border-white/10">
-        <h1 className="text-3xl font-bold bg-gradient-to-r from-axiom-accent to-axiom-accent-light bg-clip-text text-transparent">
-          AXIOM
-        </h1>
-        <p className="text-axiom-text-secondary mt-1 text-sm">L'Inbox Chaotique: Videz votre cerveau.</p>
+      <header className="p-4 glass-strong backdrop-blur-xl border-b border-white/10">
+        <div className="max-w-6xl mx-auto flex items-center justify-between">
+          <div className="text-center flex-1">
+            <h1 className="text-3xl font-bold bg-gradient-to-r from-axiom-accent to-axiom-accent-light bg-clip-text text-transparent">
+              AXIOM
+            </h1>
+            <p className="text-axiom-text-secondary mt-1 text-sm">L'Inbox Chaotique: Videz votre cerveau.</p>
+          </div>
+          <UserMenu />
+        </div>
       </header>
 
       <main className="flex-grow p-6 overflow-y-auto flex flex-col items-center">
@@ -150,8 +156,8 @@ export const CaptureView: React.FC<CaptureViewProps> = ({ notes, addNote, startT
             type="button"
             onClick={toggleVoiceRecognition}
             className={`p-3 rounded-xl transition-all duration-200 ${isListening
-                ? 'bg-red-500/20 text-red-500 animate-pulse'
-                : 'text-axiom-text-secondary hover:text-axiom-accent hover:bg-axiom-accent/10'
+              ? 'bg-red-500/20 text-red-500 animate-pulse'
+              : 'text-axiom-text-secondary hover:text-axiom-accent hover:bg-axiom-accent/10'
               }`}
             title={isListening ? 'Arrêter l\'écoute' : 'Activer la reconnaissance vocale'}
           >
