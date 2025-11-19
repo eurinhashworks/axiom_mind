@@ -1,7 +1,7 @@
 import { GoogleGenAI, Type } from "@google/genai";
 import { IdeaNode, UserStory } from "../types";
 
-const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+const ai = new GoogleGenAI({ apiKey: import.meta.env.VITE_GEMINI_API_KEY });
 
 export async function generateActionPlan(idea: IdeaNode): Promise<UserStory[]> {
   try {
@@ -41,7 +41,7 @@ export async function generateActionPlan(idea: IdeaNode): Promise<UserStory[]> {
         },
       },
     });
-    
+
     const jsonResponse = JSON.parse(response.text);
 
     if (jsonResponse.user_stories && Array.isArray(jsonResponse.user_stories)) {
@@ -51,8 +51,8 @@ export async function generateActionPlan(idea: IdeaNode): Promise<UserStory[]> {
         completed: false,
       }));
     } else {
-       console.error("Unexpected JSON structure:", jsonResponse);
-       return [];
+      console.error("Unexpected JSON structure:", jsonResponse);
+      return [];
     }
   } catch (error) {
     console.error("Error generating action plan:", error);
