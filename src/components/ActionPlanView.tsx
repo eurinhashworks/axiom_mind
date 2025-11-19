@@ -1,7 +1,7 @@
-
-import React from 'react';
+import React, { useState } from 'react';
 import { UserStory, IdeaNode } from '../types';
 import { TelescopeIcon } from './icons';
+import { exportActionPlan, copyPlanToClipboard } from '../utils/exportUtils';
 
 interface ActionPlanViewProps {
   idea: IdeaNode;
@@ -38,6 +38,33 @@ const UserStoryItem: React.FC<{ story: UserStory; onToggle: () => void; }> = ({ 
 export const ActionPlanView: React.FC<ActionPlanViewProps> = ({ idea, actionPlan, toggleStoryCompletion, showGalaxyView }) => {
   const completedCount = actionPlan.filter(s => s.completed).length;
   const progress = actionPlan.length > 0 ? (completedCount / actionPlan.length) * 100 : 0;
+  const [exportFeedback, setExportFeedback] = useState<'idle' | 'downloading' | 'copied' | 'error'>('idle');
+
+  const handleExport = () => {
+    try {
+      setExportFeedback('downloading');
+      exportActionPlan(idea, actionPlan);
+      setTimeout(() => setExportFeedback('idle'), 2000);
+    } catch (error) {
+      setExportFeedback('error');
+      setTimeout(() => setExportFeedback('idle'), 2000);
+    }
+  };
+
+  const handleCopy = async () => {
+    const success = await copyPlanToClipboard(idea, actionPlan);
+    setExportFeedback(success ? 'copied' : 'error');
+    setTimeout(() => setExportFeedback('idle'), 2000);
+  };
+
+  const getExportButtonText = () => {
+    switch (exportFeedback) {
+      case 'downloading': return '📥 Téléchargement...';
+      case 'copied': return '✅ Copié !';
+      case 'error': return '❌ Erreur';
+      default: return '📤 Exporter';
+    }
+  };
 
   return (
     <div className="flex flex-col h-full p-6 md:p-8">
@@ -50,7 +77,6 @@ export const ActionPlanView: React.FC<ActionPlanViewProps> = ({ idea, actionPlan
             Roadmap MVP pour : <span className="text-axiom-accent-light font-semibold">{idea.projectName || 'Nouveau Projet'}</span>
           </p>
 
-          {/* Progress bar */}
           <div className="mt-6 glass rounded-full overflow-hidden h-3">
             <div
               className="h-full bg-gradient-to-r from-axiom-accent to-axiom-accent-light transition-all duration-500 rounded-full shadow-glow"
@@ -82,13 +108,24 @@ export const ActionPlanView: React.FC<ActionPlanViewProps> = ({ idea, actionPlan
         )}
       </main>
 
-      <footer className="mt-8 flex justify-center items-center gap-4 max-w-4xl mx-auto w-full">
-        <button className="card-hover py-3 px-6 font-medium hover:scale-105 transition-all duration-200">
-          📤 Exporter
+      <footer className="mt-8 flex flex-wrap justify-center items-center gap-3 max-w-4xl mx-auto w-full">
+        <button
+          onClick={handleExport}
+          disabled={exportFeedback !== 'idle'}
+          className="card-hover py-3 px-6 font-medium hover:scale-105 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          {getExportButtonText()}
+        </button>
+        <button
+          onClick={handleCopy}
+          disabled={exportFeedback !== 'idle'}
+          className="card-hover py-3 px-6 font-medium hover:scale-105 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          📋 Copier
         </button>
         <button
           onClick={showGalaxyView}
-          className="flex items-center gap-2 bg-gradient-to-r from-axiom-accent to-axiom-accent-hover py-3 px-6 rounded-xl font-medium text-white shadow-glow hover:scale-105 transition-all duration-200"
+          className="flex items-center gap-2 bg-gradient-to-r from-axiom-accent to-axiom-accent-hover py-3 px-6 rounded-xl font-medium text-white shadow-glow hover:scale-105 transition-all duration-  200"
         >
           <TelescopeIcon className="w-5 h-5" />
           Voir la Galaxie

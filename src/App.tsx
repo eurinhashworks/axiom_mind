@@ -7,34 +7,39 @@ import { EvaluationView } from './components/EvaluationView';
 import { ActionPlanView } from './components/ActionPlanView';
 import { GalaxyView } from './components/GalaxyView';
 import { generateActionPlan } from './services/geminiService';
+import { useLocalStorage } from './hooks/useLocalStorage';
 
 const App: React.FC = () => {
   const [currentStage, setCurrentStage] = useState<Stage>(Stage.CAPTURE);
-  const [notes, setNotes] = useState<BrainDumpNote[]>([]);
+  const [notes, setNotes] = useLocalStorage<BrainDumpNote[]>('axiom_notes', []);
   const [activeIdea, setActiveIdea] = useState<IdeaNode | null>(null);
   const [actionPlan, setActionPlan] = useState<UserStory[]>([]);
-  const [completedIdeas, setCompletedIdeas] = useState<IdeaNode[]>([]);
+  const [completedIdeas, setCompletedIdeas] = useLocalStorage<IdeaNode[]>('axiom_completed_ideas', []);
 
   const addNote = useCallback((content: string) => {
+    const now = new Date().toISOString();
     const newNote: BrainDumpNote = {
       id: `note-${Date.now()}`,
       content,
       status: 'À Tisser',
+      createdAt: now,
     };
     setNotes(prev => [newNote, ...prev]);
-  }, []);
+  }, [setNotes]);
 
   const startTriage = useCallback((noteId: string) => {
     const noteToTriage = notes.find(n => n.id === noteId);
     if (noteToTriage) {
+      const now = new Date().toISOString();
       setActiveIdea({
         id: `idea-${Date.now()}`,
         originalNote: noteToTriage.content,
+        createdAt: now,
       });
       setCurrentStage(Stage.TRIAGE);
     }
   }, [notes]);
-  
+
   const updateActiveIdea = useCallback((ideaUpdate: Partial<IdeaNode>) => {
     setActiveIdea(prev => prev ? { ...prev, ...ideaUpdate } : null);
   }, []);
@@ -42,7 +47,7 @@ const App: React.FC = () => {
   const completeTriage = useCallback(() => {
     setCurrentStage(Stage.EVALUATION);
   }, []);
-  
+
   const completeEvaluation = useCallback(async () => {
     if (activeIdea) {
       const plan = await generateActionPlan(activeIdea);
@@ -50,33 +55,46 @@ const App: React.FC = () => {
       setCurrentStage(Stage.ACTION_PLAN);
     }
   }, [activeIdea]);
-  
+
   const toggleStoryCompletion = useCallback((storyId: string) => {
-      setActionPlan(prev =>
-          prev.map(story =>
-              story.id === storyId ? { ...story, completed: !story.completed } : story
-          )
-      );
+    setActionPlan(prev =>
+      prev.map(story =>
+        story.id === storyId ? { ...story, completed: !story.completed } : story
+      )
+    );
   }, []);
 
   const finishIdea = useCallback(() => {
     if (activeIdea) {
-        setCompletedIdeas(prev => [...prev, activeIdea]);
-        setNotes(prev => prev.map(n => n.content === activeIdea.originalNote ? {...n, status: 'Tissé'} : n));
-        setActiveIdea(null);
-        setActionPlan([]);
-        setCurrentStage(Stage.CAPTURE);
+      const now = new Date().toISOString();
+      const completedIdea = { ...activeIdea, completedAt: now };
+
+      setCompletedIdeas(prev => [...prev, completedIdea]);
+      setNotes(prev => prev.map(n =>
+        n.content === activeIdea.originalNote
+          ? { ...n, status: 'Tissé', updatedAt: now }
+          : n
+      ));
+      setActiveIdea(null);
+      setActionPlan([]);
+      setCurrentStage(Stage.CAPTURE);
     }
-  }, [activeIdea]);
-  
+  }, [activeIdea, setCompletedIdeas, setNotes]);
+
   const showGalaxyView = useCallback(() => {
     if (activeIdea) {
-        // "Finish" the current idea before showing the galaxy
-        setCompletedIdeas(prev => [...prev, activeIdea]);
-        setNotes(prev => prev.map(n => n.content === activeIdea.originalNote ? {...n, status: 'Tissé'} : n));
+      const now = new Date().toISOString();
+      const completedIdea = { ...activeIdea, completedAt: now };
+
+      setCompletedIdeas(prev => [...prev, completedIdea]);
+      setNotes(prev => prev.map(n =>
+        n.content === activeIdea.originalNote
+          ? { ...n, status: 'Tissé', updatedAt: now }
+          : n
+      ));
     }
     setCurrentStage(Stage.GALAXY);
-  }, [activeIdea]);
+  }, [activeIdea, setCompletedIdeas, setNotes]);
 
   const renderCurrentStage = () => {
     switch (currentStage) {
@@ -90,7 +108,7 @@ const App: React.FC = () => {
         }
         return <TriageView note={noteForTriage} updateIdea={updateActiveIdea} completeTriage={completeTriage} />;
       case Stage.EVALUATION:
-         if (!activeIdea) {
+        if (!activeIdea) {
           setCurrentStage(Stage.CAPTURE);
           return null;
         }

@@ -66,4 +66,29 @@ View app in AI Studio: https://ai.studio/apps/drive/1K0iXUDPzjSLpeeH4t7BI0rQEQB6
 
 ---
 
+## 📚 Documentation
+
+### 📖 Pour Tous
+- **[📋 DOCS_INDEX.md](./DOCS_INDEX.md)** - Index de navigation de toute la documentation
+
+### 👨‍💻 Pour les Développeurs
+- **[📘 DOCUMENTATION.md](./DOCUMENTATION.md)** - Guide technique complet (architecture, composants, services)
+- **[🔌 API.md](./API.md)** - Référence API complète avec exemples
+- **[🤝 CONTRIBUTING.md](./CONTRIBUTING.md)** - Guide de contribution (standards, PR, bugs)
+- **[🗺️ ROADMAP.md](./ROADMAP.md)** - Features futures (24 fonctionnalités planifiées)
+
+**🚀 Nouveau contributeur ?** Commencez par [DOCS_INDEX.md](./DOCS_INDEX.md) !
+
+---
+
+## 🤝 Contribution
+
+Les contributions sont les bienvenues ! Consultez [CONTRIBUTING.md](./CONTRIBUTING.md) pour :
+- Setup de l'environnement de dev
+- Standards de code
+- Processus de Pull Request
+- Comment reporter des bugs
+
+---
+
 Développé avec ❤️ par eurinhashworks

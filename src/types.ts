@@ -13,6 +13,8 @@ export interface BrainDumpNote {
   id: string;
   content: string;
   status: NoteStatus;
+  createdAt: string; // ISO timestamp
+  updatedAt?: string; // ISO timestamp
 }
 
 export interface IdeaNode {
@@ -26,6 +28,8 @@ export interface IdeaNode {
   excitement?: number;
   opportunityScore?: number;
   feasibilityScore?: number;
+  createdAt: string; // ISO timestamp
+  completedAt?: string; // ISO timestamp
 }
 
 export interface ChatMessage {
