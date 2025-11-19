@@ -1,20 +1,69 @@
-<div align="center">
-<img width="1200" height="475" alt="GHBanner" src="https://github.com/user-attachments/assets/0aa67016-6eaf-458a-adb2-6e31a0763ed6" />
-</div>
+# AXIOM - The Lightning Architect's Interface
 
-# Run and deploy your AI Studio app
+Application de gestion d'idées avec visualisation en galaxie interactive.
 
-This contains everything you need to run your app locally.
+## 🚀 Lancement Local
 
-View your app in AI Studio: https://ai.studio/apps/drive/1K0iXUDPzjSLpeeH4t7BI0rQEQB6BL3DW
+**Prérequis:** Node.js 18+ et pnpm
 
-## Run Locally
+### Installation
 
-**Prerequisites:**  Node.js
+```bash
+# 1. Installer les dépendances
+pnpm install
 
+# 2. Configurer la clé API Gemini
+# Créez un fichier .env à la racine et ajoutez:
+# VITE_GEMINI_API_KEY=votre_clé_api_ici
 
-1. Install dependencies:
-   `npm install`
-2. Set the `GEMINI_API_KEY` in [.env.local](.env.local) to your Gemini API key
-3. Run the app:
-   `npm run dev`
+# 3. Lancer le serveur de développement
+pnpm dev
+```
+
+L'application sera accessible sur `http://localhost:3000`
+
+## 🏗️ Build de Production
+
+```bash
+pnpm build
+pnpm preview
+```
+
+## 🌟 Fonctionnalités
+
+- **Capture** : Dumper vos idées rapidement
+- **Triage** : Structurer et clarifier vos concepts
+- **Évaluation** : Analyser l'urgence, l'échelle et le potentiel
+- **Plan d'Action** : Générer automatiquement des user stories via Gemini AI
+- **Galaxie** : Visualiser toutes vos idées dans une galaxie interactive D3.js
+
+## 🛠️ Stack Technique
+
+- **React 19** avec TypeScript
+- **Vite 6** pour le build
+- **Tailwind CSS 3** pour le styling
+- **D3.js** pour la visualisation
+- **Google Gemini AI** pour la génération de plans
+
+## 📁 Structure du Projet
+
+```
+axiom_mind/
+├── src/
+│   ├── components/     # Composants React
+│   ├── services/       # Services (Gemini API)
+│   ├── App.tsx        # Composant principal
+│   ├── types.ts       # TypeScript types
+│   └── index.tsx      # Point d'entrée
+├── index.html
+├── vite.config.ts
+└── tailwind.config.js
+```
+
+## 🔗 Liens
+
+View app in AI Studio: https://ai.studio/apps/drive/1K0iXUDPzjSLpeeH4t7BI0rQEQB6BL3DW
+
+---
+
+Développé avec ❤️ par eurinhashworks
