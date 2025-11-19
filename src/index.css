@@ -4,6 +4,50 @@
 
 @layer base {
   body {
-    @apply bg-axiom-dark text-axiom-text-primary;
+    @apply bg-gradient-to-br from-axiom-dark via-axiom-dark to-axiom-medium text-axiom-text-primary;
+    background-attachment: fixed;
+  }
+
+  * {
+    @apply transition-colors duration-200;
+  }
+
+  /* Scrollbar personnalisée */
+  ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+
+  ::-webkit-scrollbar-track {
+    @apply bg-axiom-dark;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    @apply bg-axiom-light rounded-full;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    @apply bg-axiom-lighter;
+  }
+}
+
+@layer components {
+
+  /* Effet glassmorphism */
+  .glass {
+    @apply bg-white/5 backdrop-blur-md border border-white/10;
+  }
+
+  .glass-strong {
+    @apply bg-white/10 backdrop-blur-lg border border-white/20;
+  }
+
+  /* Card avec ombre élégante */
+  .card {
+    @apply bg-axiom-medium/50 backdrop-blur-sm rounded-xl shadow-lg border border-axiom-border/30;
+  }
+
+  .card-hover {
+    @apply card hover:shadow-glow hover:border-axiom-accent/50 transition-all duration-300;
   }
 }
