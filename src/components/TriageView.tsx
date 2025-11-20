@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { BrainDumpNote, ChatMessage, IdeaNode } from '../types';
 import { SendIcon, AxiomIcon } from './icons';
+import { UserMenu } from './UserMenu';
 import { chatWithAxiom, generateTriageIntro } from '../services/geminiService';
 
 interface TriageViewProps {
@@ -20,8 +21,8 @@ const ChatBubble: React.FC<{ message: ChatMessage; isLoading?: boolean }> = ({ m
       )}
       <div
         className={`max-w-lg p-4 rounded-2xl ${isAxiom
-            ? 'card rounded-bl-none'
-            : 'bg-gradient-to-r from-axiom-accent to-axiom-accent-hover text-white rounded-br-none shadow-glow'
+          ? 'card rounded-bl-none'
+          : 'bg-gradient-to-r from-axiom-accent to-axiom-accent-hover text-white rounded-br-none shadow-glow'
           }`}
       >
         {isLoading ? (
@@ -129,13 +130,18 @@ export const TriageView: React.FC<TriageViewProps> = ({ note, updateIdea, comple
 
   return (
     <div className="flex flex-col h-full">
-      <header className="p-6 text-center glass-strong backdrop-blur-xl border-b border-white/10">
-        <h1 className="text-2xl font-bold bg-gradient-to-r from-axiom-accent to-axiom-accent-light bg-clip-text text-transparent">
-          Dialogue Socratique
-        </h1>
-        <p className="text-axiom-text-secondary text-sm mt-1 truncate px-4 max-w-2xl mx-auto">
-          {note.content}
-        </p>
+      <header className="p-6 glass-strong backdrop-blur-xl border-b border-white/10 flex items-center justify-between">
+        <div className="flex-1 text-center">
+          <h1 className="text-2xl font-bold bg-gradient-to-r from-axiom-accent to-axiom-accent-light bg-clip-text text-transparent">
+            Dialogue Socratique
+          </h1>
+          <p className="text-axiom-text-secondary text-sm mt-1 truncate px-4 max-w-2xl mx-auto">
+            {note.content}
+          </p>
+        </div>
+        <div className="absolute right-4 top-4">
+          <UserMenu />
+        </div>
       </header>
 
       <main className="flex-grow p-6 overflow-y-auto">

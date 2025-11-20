@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { UserStory, IdeaNode } from '../types';
 import { TelescopeIcon } from './icons';
+import { UserMenu } from './UserMenu';
 import { exportActionPlan, copyPlanToClipboard } from '../utils/exportUtils';
 
 interface ActionPlanViewProps {
@@ -18,8 +19,8 @@ const UserStoryItem: React.FC<{ story: UserStory; onToggle: () => void; }> = ({ 
     >
       <div className="flex items-start gap-4">
         <div className={`relative flex-shrink-0 w-6 h-6 mt-0.5 rounded-md border-2 transition-all duration-300 ${story.completed
-            ? 'bg-axiom-accent border-axiom-accent'
-            : 'border-axiom-border group-hover:border-axiom-accent'
+          ? 'bg-axiom-accent border-axiom-accent'
+          : 'border-axiom-border group-hover:border-axiom-accent'
           }`}>
           {story.completed && (
             <svg className="w-full h-full text-white p-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -68,7 +69,10 @@ export const ActionPlanView: React.FC<ActionPlanViewProps> = ({ idea, actionPlan
 
   return (
     <div className="flex flex-col h-full p-6 md:p-8">
-      <header className="mb-8">
+      <header className="mb-8 relative">
+        <div className="absolute right-0 top-0">
+          <UserMenu />
+        </div>
         <div className="max-w-4xl mx-auto">
           <h1 className="text-3xl md:text-4xl font-bold bg-gradient-to-r from-axiom-accent to-axiom-accent-light bg-clip-text text-transparent text-center">
             La Boussole

@@ -1,6 +1,7 @@
 import React, { useEffect, useRef } from 'react';
 import * as d3 from 'd3';
 import { IdeaNode } from '../types';
+import { UserMenu } from './UserMenu';
 
 interface GalaxyViewProps {
   ideas: IdeaNode[];
@@ -98,11 +99,16 @@ export const GalaxyView: React.FC<GalaxyViewProps> = ({ ideas, goBack }) => {
 
   return (
     <div className="relative w-full h-full animate-popIn">
-      <header className="absolute top-0 left-0 p-6 z-10 w-full text-center glass-strong backdrop-blur-xl border-b border-white/10">
-        <h1 className="text-3xl md:text-4xl font-bold bg-gradient-to-r from-axiom-accent to-axiom-accent-light bg-clip-text text-transparent">
-          La Galaxie
-        </h1>
-        <p className="text-axiom-text-secondary mt-1">Votre Cortex Visuel</p>
+      <header className="absolute top-0 left-0 p-6 z-10 w-full text-center glass-strong backdrop-blur-xl border-b border-white/10 flex items-center justify-center">
+        <div className="flex-1">
+          <h1 className="text-3xl md:text-4xl font-bold bg-gradient-to-r from-axiom-accent to-axiom-accent-light bg-clip-text text-transparent">
+            La Galaxie
+          </h1>
+          <p className="text-axiom-text-secondary mt-1">Votre Cortex Visuel</p>
+        </div>
+        <div className="absolute right-6 top-6">
+          <UserMenu />
+        </div>
       </header>
       <svg ref={svgRef} className="w-full h-full"></svg>
       <button
