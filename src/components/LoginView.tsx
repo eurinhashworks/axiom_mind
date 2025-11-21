@@ -1,25 +1,27 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
 
 export const LoginView: React.FC = () => {
-    const { login } = useAuth();
+    const { login, currentUser } = useAuth();
     const navigate = useNavigate();
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
+
+    useEffect(() => {
+        if (currentUser) {
+            navigate('/');
+        }
+    }, [currentUser, navigate]);
 
     const handleGoogleLogin = async () => {
         setIsLoading(true);
         setError(null);
         try {
             await login();
-            // Indiquer que la redirection est en cours
-            setError('Connexion réussie ! Redirection en cours...');
-            // Redirection vers la page d'accueil après une authentification réussie
-            navigate('/');
+            // La redirection sera gérée par le useEffect
         } catch (err: any) {
             setError(err.message || 'Erreur de connexion');
-        } finally {
             setIsLoading(false);
         }
     };
